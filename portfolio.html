@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guilherme | Security & Cloud Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green: #00ff41;
+      --green-dim: #008f11;
+      --green-dark: #003d08;
+      --green-neon: #39ff14;
+      --bg: #050505;
+      --bg-card: #0d0d0d;
+      --bg-card2: #111;
+      --border: #1a3d1a;
+      --text: #c8ffc8;
+      --text-dim: #4a7a4a;
+      --red: #ff2222;
+      --cyan: #00e5ff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── SCANLINES ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,255,65,0.015) 2px,
+        rgba(0,255,65,0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── MATRIX RAIN CANVAS ── */
+    #matrix-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.07;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 40px;
+      background: rgba(5,5,5,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-logo {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--green);
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+
+    .nav-logo span { color: var(--text-dim); }
+
+    nav ul {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    nav ul a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color .2s;
+      position: relative;
+    }
+
+    nav ul a::before { content: '> '; color: var(--green-dim); }
+    nav ul a:hover { color: var(--green); }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 8px;
+      animation: blink 1.4s infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: left;
+      padding: 100px 40px 60px;
+      z-index: 1;
+    }
+
+    .hero-inner { max-width: 820px; width: 100%; }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      opacity: 0.6;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .terminal-title { font-size: 11px; color: var(--text-dim); margin-left: 8px; letter-spacing: 1px; }
+
+    .prompt-line {
+      color: var(--text-dim);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .prompt-line span { color: var(--green); }
+
+    .hero-name {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(36px, 6vw, 72px);
+      color: var(--green);
+      line-height: 1.1;
+      margin-bottom: 8px;
+      text-shadow: 0 0 30px rgba(0,255,65,0.4);
+    }
+
+    .hero-role {
+      font-size: clamp(14px, 2vw, 20px);
+      color: var(--text-dim);
+      margin-bottom: 32px;
+    }
+
+    .hero-role .highlight { color: var(--cyan); }
+
+    .hero-desc {
+      color: #7aad7a;
+      font-size: 13px;
+      max-width: 520px;
+      margin-bottom: 48px;
+      border-left: 2px solid var(--green-dark);
+      padding-left: 16px;
+    }
+
+    .cta-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-decoration: none;
+      border: 1px solid var(--green-dim);
+      color: var(--green);
+      background: transparent;
+      cursor: pointer;
+      transition: all .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--green);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .25s;
+      z-index: -1;
+    }
+
+    .btn:hover { color: var(--bg); border-color: var(--green); }
+    .btn:hover::before { transform: scaleX(1); }
+
+    .btn-ghost {
+      border-color: var(--border);
+      color: var(--text-dim);
+    }
+
+    .btn-ghost:hover { color: var(--text); border-color: var(--text-dim); }
+    .btn-ghost::before { background: var(--bg-card2); }
+    .btn-ghost:hover::before { transform: scaleX(1); }
+
+    /* ── SCROLL INDICATOR ── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-dim);
+      font-size: 11px;
+      letter-spacing: 2px;
+      animation: floatUp 2s ease-in-out infinite;
+    }
+
+    .scroll-hint::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(var(--green-dim), transparent);
+    }
+
+    @keyframes floatUp { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-8px)} }
+
+    /* ── SECTION BASE ── */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 100px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px;
+      color: var(--green-dim);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(24px, 4vw, 42px);
+      color: var(--green);
+      margin-bottom: 16px;
+    }
+
+    .section-title .dim { color: var(--text-dim); }
+
+    .section-line {
+      width: 60px;
+      height: 1px;
+      background: var(--green-dim);
+      margin-bottom: 48px;
+    }
+
+    /* ── REVEAL ON SCROLL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── SKILLS ── */
+    #skills { border-top: 1px solid var(--border); }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .skill-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 24px;
+      transition: border-color .3s, box-shadow .3s, transform .3s;
+      cursor: default;
+    }
+
+    .skill-card:hover {
+      border-color: var(--green-dim);
+      box-shadow: 0 0 20px rgba(0,255,65,0.08);
+      transform: translateY(-4px);
+    }
+
+    .skill-card-icon {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .skill-card-title {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--green);
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .skill-card p { color: var(--text-dim); font-size: 12px; }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+
+    .tag {
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border: 1px solid var(--green-dark);
+      color: var(--green-dim);
+      background: rgba(0,255,65,0.04);
+    }
+
+    /* ── PROJECTS ── */
+    #projects { border-top: 1px solid var(--border); }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .project-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 28px;
+      transition: border-color .3s, box-shadow .3s, transform .3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 0;
+      background: var(--green);
+      transition: height .4s ease;
+    }
+
+    .project-card:hover::after { height: 100%; }
+
+    .project-card:hover {
+      border-color: var(--green-dim);
+      box-shadow: 0 0 30px rgba(0,255,65,0.1);
+      transform: translateY(-4px);
+    }
+
+    .project-status {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--green);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .project-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .project-desc {
+      color: var(--text-dim);
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+
+    .project-link {
+      font-size: 11px;
+      color: var(--green-dim);
+      text-decoration: none;
+      letter-spacing: 1px;
+      transition: color .2s;
+    }
+
+    .project-link:hover { color: var(--green); }
+    .project-link::before { content: '$ git clone → '; }
+
+    /* ── EXPERIENCE ── */
+    #experience { border-top: 1px solid var(--border); }
+
+    .timeline { position: relative; }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(var(--green-dim), transparent);
+    }
+
+    .timeline-item {
+      padding-left: 36px;
+      padding-bottom: 48px;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 6px;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+    }
+
+    .timeline-date {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .timeline-role {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--green);
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .timeline-company { color: var(--cyan); font-size: 13px; margin-bottom: 12px; }
+    .timeline-desc { color: var(--text-dim); font-size: 12px; max-width: 560px; }
+
+    /* ── CONTACT ── */
+    #contact { border-top: 1px solid var(--border); text-align: center; }
+
+    .contact-email {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(20px, 3vw, 36px);
+      color: var(--green);
+      text-shadow: 0 0 20px rgba(0,255,65,0.3);
+      margin: 32px 0;
+      display: block;
+      text-decoration: none;
+      transition: text-shadow .3s;
+    }
+
+    .contact-email:hover { text-shadow: 0 0 40px rgba(0,255,65,0.6); }
+
+    .social-row { display: flex; justify-content: center; gap: 24px; margin-top: 32px; flex-wrap: wrap; }
+
+    .social-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 1px;
+      border: 1px solid var(--border);
+      padding: 10px 22px;
+      transition: all .25s;
+    }
+
+    .social-link:hover { color: var(--green); border-color: var(--green-dim); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 32px 40px;
+      color: var(--text-dim);
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    /* ── GLITCH TEXT ── */
+    @keyframes glitch-clip {
+      0%   { clip-path: inset(40% 0 61% 0); transform: translate(-2px, 0); }
+      20%  { clip-path: inset(92% 0  1% 0); transform: translate(2px,  0); }
+      40%  { clip-path: inset(43% 0 50% 0); transform: translate(-1px, 0); }
+      60%  { clip-path: inset(25% 0 58% 0); transform: translate(1px,  0); }
+      80%  { clip-path: inset(54% 0 7%  0); transform: translate(-2px, 0); }
+      100% { clip-path: inset(40% 0 61% 0); transform: translate(2px,  0); }
+    }
+
+    .glitch {
+      position: relative;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      color: var(--green);
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    .glitch::before {
+      color: var(--cyan);
+      animation: glitch-clip 4s infinite linear alternate-reverse;
+      opacity: 0;
+    }
+
+    .glitch:hover::before { opacity: 0.7; }
+
+    /* ── DECRYPTION ANIMATION ── */
+    .decrypt { display: inline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      nav { padding: 12px 20px; }
+      nav ul { gap: 16px; }
+      nav ul a::before { display: none; }
+      section { padding: 70px 20px; }
+      #hero { padding: 100px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><span>//</span> GH_DEV</div>
+  <ul>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">XP</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="terminal-header">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-title">bash — guilherme@kali ~ — 80×24</span>
+    </div>
+
+    <p class="prompt-line">
+      <span>[guilherme@dev ~]$</span> whoami
+    </p>
+
+    <h1 class="hero-name glitch" data-text="Guilherme">Guilherme</h1>
+
+    <p class="hero-role">
+      CS Student · <span class="highlight">Security &amp; Cloud</span> · Network Engineering
+    </p>
+
+    <p class="hero-desc">
+      Cursando Ciência da Computação na UNICSUL. Focado em cibersegurança (Blue Team/SOC),
+      infraestrutura de redes e cloud. Pursuit of CCNA — transitioning from IT admin
+      to security engineering.
+    </p>
+
+    <div class="cta-row">
+      <a href="https://github.com/" class="btn" target="_blank">$ view github</a>
+      <a href="#contact" class="btn btn-ghost">$ get in touch</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <p class="section-label reveal">// capabilities</p>
+  <h2 class="section-title reveal"><span class="dim">01.</span> Skills &amp; Stack</h2>
+  <div class="section-line reveal"></div>
+
+  <div class="skills-grid">
+
+    <div class="skill-card reveal reveal-delay-1">
+      <div class="skill-card-icon">🛡️</div>
+      <div class="skill-card-title">Cybersecurity</div>
+      <p>Blue team mindset: análise de ameaças, IDS, SIEM, e hardening de sistemas.</p>
+      <div class="tag-row">
+        <span class="tag">Wireshark</span>
+        <span class="tag">Nmap</span>
+        <span class="tag">SOC</span>
+        <span class="tag">IDS/IPS</span>
+        <span class="tag">SIEM</span>
+      </div>
+    </div>
+
+    <div class="skill-card reveal reveal-delay-2">
+      <div class="skill-card-icon">🌐</div>
+      <div class="skill-card-title">Networking</div>
+      <p>Roteamento, switching, VLANs, OSPF e hands-on com Cisco CML para lab CCNA.</p>
+      <div class="tag-row">
+        <span class="tag">Cisco IOS</span>
+        <span class="tag">OSPFv2</span>
+        <span class="tag">VLANs</span>
+        <span class="tag">CCNA</span>
+        <span class="tag">CML</span>
+      </div>
+    </div>
+
+    <div class="skill-card reveal reveal-delay-3">
+      <div class="skill-card-icon">⚙️</div>
+      <div class="skill-card-title">Infra &amp; SysAdmin</div>
+      <p>Administração de 100+ máquinas Windows em ambiente Active Directory. Automação via Python/WinRM.</p>
+      <div class="tag-row">
+        <span class="tag">Active Directory</span>
+        <span class="tag">WinRM</span>
+        <span class="tag">LDAP</span>
+        <span class="tag">PowerShell</span>
+      </div>
+    </div>
+
+    <div class="skill-card reveal reveal-delay-1">
+      <div class="skill-card-icon">🐍</div>
+      <div class="skill-card-title">Development</div>
+      <p>Python/Flask para backends de segurança, Android com Kotlin/Java, algoritmos e estruturas de dados.</p>
+      <div class="tag-row">
+        <span class="tag">Python</span>
+        <span class="tag">Flask</span>
+        <span class="tag">Kotlin</span>
+        <span class="tag">Java</span>
+        <span class="tag">Android</span>
+      </div>
+    </div>
+
+    <div class="skill-card reveal reveal-delay-2">
+      <div class="skill-card-icon">☁️</div>
+      <div class="skill-card-title">Cloud (em progresso)</div>
+      <p>Trilha cloud como próximo passo após CCNA. Foco em AWS e arquitetura de segurança cloud-native.</p>
+      <div class="tag-row">
+        <span class="tag">AWS</span>
+        <span class="tag">IAM</span>
+        <span class="tag">VPC</span>
+        <span class="tag">Security Groups</span>
+      </div>
+    </div>
+
+    <div class="skill-card reveal reveal-delay-3">
+      <div class="skill-card-icon">🤖</div>
+      <div class="skill-card-title">ML / AI Security</div>
+      <p>Projeto TCC: IDS baseado em ML com módulo LLM para explicação de alertas a analistas SOC.</p>
+      <div class="tag-row">
+        <span class="tag">Scikit-learn</span>
+        <span class="tag">LLM</span>
+        <span class="tag">IDS</span>
+        <span class="tag">Anomaly Detection</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <p class="section-label reveal">// repositórios</p>
+  <h2 class="section-title reveal"><span class="dim">02.</span> Projects</h2>
+  <div class="section-line reveal"></div>
+
+  <div class="projects-grid">
+
+    <div class="project-card reveal reveal-delay-1">
+      <div class="project-status"><span class="status-dot"></span> ACTIVE</div>
+      <div class="project-title">AI-Augmented SOC</div>
+      <p class="project-desc">
+        TCC: Sistema IDS com ML (Random Forest / Isolation Forest) acoplado a um módulo LLM
+        que gera explicações em linguagem natural para alertas de segurança.
+      </p>
+      <div class="tag-row" style="margin-bottom:20px">
+        <span class="tag">Python</span>
+        <span class="tag">ML</span>
+        <span class="tag">LLM</span>
+        <span class="tag">SOC</span>
+      </div>
+      <a href="https://github.com/" class="project-link" target="_blank">view repo</a>
+    </div>
+
+    <div class="project-card reveal reveal-delay-2">
+      <div class="project-status"><span class="status-dot"></span> COMPLETE</div>
+      <div class="project-title">WinRM Password Manager</div>
+      <p class="project-desc">
+        Sistema centralizado Flask + WinRM para rotação automatizada de senhas de administrador
+        em 100+ máquinas Windows com integração AD via LDAP3 e audit logging.
+      </p>
+      <div class="tag-row" style="margin-bottom:20px">
+        <span class="tag">Python</span>
+        <span class="tag">Flask</span>
+        <span class="tag">WinRM</span>
+        <span class="tag">LDAP3</span>
+        <span class="tag">AD</span>
+      </div>
+      <a href="https://github.com/" class="project-link" target="_blank">view repo</a>
+    </div>
+
+    <div class="project-card reveal reveal-delay-3">
+      <div class="project-status"><span class="status-dot"></span> COMPLETE</div>
+      <div class="project-title">EcoTrack Android</div>
+      <p class="project-desc">
+        App Android (Kotlin/XML) para rastreamento de descarte de resíduos eletrônicos em São Paulo,
+        com mapa de pontos de coleta e histórico de descartes.
+      </p>
+      <div class="tag-row" style="margin-bottom:20px">
+        <span class="tag">Kotlin</span>
+        <span class="tag">Android</span>
+        <span class="tag">XML</span>
+        <span class="tag">Maps API</span>
+      </div>
+      <a href="https://github.com/" class="project-link" target="_blank">view repo</a>
+    </div>
+
+    <div class="project-card reveal reveal-delay-1">
+      <div class="project-status"><span class="status-dot"></span> IN PROGRESS</div>
+      <div class="project-title">CCNA Discovery Lab</div>
+      <p class="project-desc">
+        Laboratório prático de 12 semanas em Cisco Modeling Labs cobrindo Inter-VLAN Routing,
+        OSPFv2, ACLs e cenários de troubleshooting realistas.
+      </p>
+      <div class="tag-row" style="margin-bottom:20px">
+        <span class="tag">Cisco CML</span>
+        <span class="tag">OSPF</span>
+        <span class="tag">VLANs</span>
+        <span class="tag">ACL</span>
+      </div>
+      <a href="https://github.com/" class="project-link" target="_blank">view repo</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <p class="section-label reveal">// histórico</p>
+  <h2 class="section-title reveal"><span class="dim">03.</span> Experience</h2>
+  <div class="section-line reveal"></div>
+
+  <div class="timeline">
+
+    <div class="timeline-item reveal reveal-delay-1">
+      <div class="timeline-date">2024 — PRESENTE</div>
+      <div class="timeline-role">IT Admin / Sysadmin</div>
+      <div class="timeline-company">Empresa Familiar — Indústria de Plásticos, São Paulo</div>
+      <p class="timeline-desc">
+        Gestão de infraestrutura Windows com Active Directory, gerenciamento de usuários,
+        deploy e automação de rotinas administrativas com Python e PowerShell.
+      </p>
+    </div>
+
+    <div class="timeline-item reveal reveal-delay-2">
+      <div class="timeline-date">2023 — PRESENTE</div>
+      <div class="timeline-role">Graduando — Ciência da Computação</div>
+      <div class="timeline-company">UNICSUL — Universidade Cruzeiro do Sul, São Paulo</div>
+      <p class="timeline-desc">
+        Foco em algoritmos, grafos, programação mobile e fundamentos de segurança.
+        TCC em desenvolvimento: AI-Augmented SOC com IDS baseado em ML.
+      </p>
+    </div>
+
+    <div class="timeline-item reveal reveal-delay-3">
+      <div class="timeline-date">2024 — EM ANDAMENTO</div>
+      <div class="timeline-role">Certificação CCNA</div>
+      <div class="timeline-company">Cisco — Networking Academy</div>
+      <p class="timeline-desc">
+        Estudo prático em Cisco CML com roadmap de 12 semanas cobrindo switching,
+        roteamento dinâmico e segurança de redes.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="section-label reveal">// contato</p>
+  <h2 class="section-title reveal"><span class="dim">04.</span> Get In Touch</h2>
+  <div class="section-line reveal" style="margin: 0 auto 32px;"></div>
+
+  <p class="reveal" style="color: var(--text-dim); max-width: 480px; margin: 0 auto 8px; font-size: 13px;">
+    Aberto a oportunidades em segurança, infraestrutura e cloud.
+    Vamos conversar?
+  </p>
+
+  <a href="mailto:guilherme@email.com" class="contact-email reveal">
+    guilherme@email.com
+  </a>
+
+  <div class="social-row reveal">
+    <a href="https://github.com/" class="social-link" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/" class="social-link" target="_blank">LinkedIn</a>
+    <a href="https://tryhackme.com/" class="social-link" target="_blank">TryHackMe</a>
+  </div>
+</section>
+
+<footer>
+  <p><span style="color:var(--green-dim)">root@portfolio</span>:<span style="color:var(--cyan)">~</span>$ echo "Built with ☕ &amp; terminal sessions — São Paulo, BR"</p>
+</footer>
+
+<script>
+  /* ─── MATRIX RAIN ─── */
+  (function() {
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, cols, drops;
+
+    const chars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789ABCDEF';
+
+    function init() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      cols = Math.floor(W / 16);
+      drops = Array(cols).fill(1);
+    }
+
+    function draw() {
+      ctx.fillStyle = 'rgba(5,5,5,0.05)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#00ff41';
+      ctx.font = '13px Share Tech Mono, monospace';
+
+      for (let i = 0; i < drops.length; i++) {
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillStyle = Math.random() > 0.95 ? '#ffffff' : '#00ff41';
+        ctx.fillText(ch, i * 16, drops[i] * 16);
+        if (drops[i] * 16 > H && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+
+    init();
+    window.addEventListener('resize', init);
+    setInterval(draw, 50);
+  })();
+
+  /* ─── SCROLL REVEAL ─── */
+  (function() {
+    const els = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    els.forEach(el => observer.observe(el));
+  })();
+
+  /* ─── DECRYPT TEXT ON SCROLL ─── */
+  (function() {
+    const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*!?';
+
+    function decryptText(el, original, duration = 800) {
+      if (el._decrypting) return;
+      el._decrypting = true;
+      const len = original.length;
+      const start = performance.now();
+
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const revealed = Math.floor(progress * len);
+        let result = '';
+        for (let i = 0; i < len; i++) {
+          if (original[i] === ' ') { result += ' '; continue; }
+          if (i < revealed) {
+            result += original[i];
+          } else {
+            result += CHARS[Math.floor(Math.random() * CHARS.length)];
+          }
+        }
+        el.textContent = result;
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = original;
+          el._decrypting = false;
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Observe section titles
+    const titles = document.querySelectorAll('.section-title, .timeline-role, .project-title, .skill-card-title');
+    const decryptObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !e.target._decrypted) {
+          e.target._decrypted = true;
+          const original = e.target.textContent;
+          decryptText(e.target, original, 900);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    titles.forEach(t => decryptObserver.observe(t));
+  })();
+
+  /* ─── PARALLAX MATRIX OPACITY ON SCROLL ─── */
+  (function() {
+    const canvas = document.getElementById('matrix-canvas');
+    window.addEventListener('scroll', () => {
+      const scrolled = window.scrollY;
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const pct = scrolled / maxScroll;
+      // Fade rain from 0.07 at top to 0.02 at bottom
+      canvas.style.opacity = 0.07 - pct * 0.05;
+    }, { passive: true });
+  })();
+
+  /* ─── NAV ACTIVE HIGHLIGHT ─── */
+  (function() {
+    const links = document.querySelectorAll('nav ul a');
+    const sections = ['skills','projects','experience','contact'].map(id => document.getElementById(id));
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.id;
+      });
+      links.forEach(l => {
+        l.style.color = l.getAttribute('href') === `#${current}` ? 'var(--green)' : '';
+      });
+    }, { passive: true });
+  })();
+</script>
+</body>
+</html>
